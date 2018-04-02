@@ -1,2 +1,4 @@
-# billboard100
-Get and parse billboard100 data
+Requires
+
+- pywikibot (python 2)
+- wikitextparser (python 3)

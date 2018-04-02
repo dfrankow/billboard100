@@ -1,0 +1,5 @@
+*.wiki
+*.tsv
+*~
+apicache-py2
+throttle.ctrl
