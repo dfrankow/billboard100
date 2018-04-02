@@ -13,16 +13,7 @@ for filename in os.listdir('pages'):
         continue
     pagetext = open('pages/%s' % filename).read()
 
-    # fix rowspans
-    pagetext2 = ''
-    # patt = re.compile(r'(rowspan="\d+")\|')
-    patt = re.compile(r'(rowspan="\d+")')
-    for line in pagetext.split('\n'):
-        before = line
-        m = patt.search(line)
-        line = patt.sub(r'\1 ', line)
-        pagetext2 += line + '\n'
-    p = wtp.parse(pagetext2)
+    p = wtp.parse(pagetext)
     for table in p.tables:
         try:
             data = table.getdata()
