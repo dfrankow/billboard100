@@ -67,8 +67,7 @@ for filename in os.listdir('tables'):
         redirects.extend(get_pages(song, 'song_pages', year))
         redirects.extend(get_pages(artists, 'artist_pages', year))
 
-with open('redirects.tsv', 'w') as the_file:
-    print("hello %s" % redirects)
+with open('redirects.tsv', 'a') as the_file:
     for old, new in redirects:
         print("%s\t%s" % (old, new), file=the_file)
         print("%s\t%s" % (old, new))
