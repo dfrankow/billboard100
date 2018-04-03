@@ -20,7 +20,7 @@ def get_pages(wiki_text, dirname, year):
         # replace / because that's no good in a filename
         pagefilename = '%s/%s' % (dirname, page.replace('/', '_'))
         if not os.path.exists(pagefilename):
-            print("year %s '%s'" % (year, page))
+            print("year %s '%s' from '%s'" % (year, page, wiki_text))
             page = pywikibot.Page(site, page)
 
             # follow redirects
