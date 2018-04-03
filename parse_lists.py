@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import re
 
 import wikitextparser as wtp
 
@@ -19,6 +20,8 @@ for filename in os.listdir('pages'):
             if 'Song' in data[0]:
                 with open('tables/%s.tsv' % name, 'w') as the_file:
                     for row in data:
+                        # remove values that mess up a .tsv:
+                        row = [re.sub('[\n\r\t]', ' ', field) for field in row]
                         print('\t'.join(row), file=the_file)
                 print("Parsed %s" % filename)
         except ValueError as ve:
