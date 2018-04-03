@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-#from __future__ import unicode_literals
-
-#import sys
-#sys.setdefaultencoding('utf8')
-
 import os
 import re
 
@@ -18,13 +13,41 @@ def page_names(string):
     return [match[0] for match in re.findall('\[\[([^\]]+)(\|[^\]]+)\]\]', string)]
 
 
+def get_pages(wiki_text, dirname, year):
+    """Get pages.  Return any followed redirects."""
+    redirects = []
+    for page in page_names(wiki_text):
+        # replace / because that's no good in a filename
+        pagefilename = '%s/%s' % (dirname, page.replace('/', '_'))
+        if not os.path.exists(pagefilename):
+            print("year %s '%s'" % (year, page))
+            page = pywikibot.Page(site, page)
+
+            # follow redirects
+            try:
+                while True:
+                    oldpage = page
+                    page = page.getRedirectTarget()
+                    redirects.append( (oldpage.title(), page.title()) )
+                    print("Redirect from '%s' to '%s'"
+                          % (oldpage.title(), page.title()))
+            except pywikibot.exceptions.IsNotRedirectPage:
+                pass
+
+            with open(pagefilename, 'w') as the_file:
+                print(page.text.encode('utf-8'), file=the_file)
+
+    return redirects
+
+
+redirects = []
 for filename in os.listdir('tables'):
     name, ext = os.path.splitext(filename)
     # only parse .tsv files
     if ext != '.tsv':
         continue
 
-    print(filename)
+    # print(filename)
 
     year = re.search('(\d\d\d\d)', filename).group(1)
 
@@ -41,20 +64,11 @@ for filename in os.listdir('tables'):
             print("%s: malformed line %s" % (filename, line))
         the_date, song, artists, reference = fields
 
-        for page in page_names(song):
-            # replace / because that's no good in a filename
-            pagefilename = 'song_pages/%s' % page.replace('/', '_')
-            if not os.path.exists(pagefilename):
-                print("year %s song '%s'" % (year, page))
-                page = pywikibot.Page(site, page)
-                with open(pagefilename, 'w') as the_file:
-                    print(page.text.encode('utf-8'), file=the_file)
+        redirects.extend(get_pages(song, 'song_pages', year))
+        redirects.extend(get_pages(artists, 'artist_pages', year))
 
-        for page in page_names(artists):
-            # replace / because that's no good in a filename
-            pagefilename = 'artist_pages/%s' % page.replace('/', '_')
-            if not os.path.exists(pagefilename):
-                print("year %s artist '%s'" % (year, page))
-                page = pywikibot.Page(site, page)
-                with open(pagefilename, 'w') as the_file:
-                    print(page.text.encode('utf-8'), file=the_file)
+with open('redirects.tsv', 'w') as the_file:
+    print("hello %s" % redirects)
+    for old, new in redirects:
+        print("%s\t%s" % (old, new), file=the_file)
+        print("%s\t%s" % (old, new))
