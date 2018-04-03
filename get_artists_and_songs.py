@@ -10,7 +10,11 @@ site = pywikibot.Site('en', 'wikipedia')  # The site we want to run our bot on
 
 def page_names(string):
     """Return wiki page names from a string."""
-    return [match[0] for match in re.findall('\[\[([^\]]+)(\|[^\]]+)\]\]', string)]
+    for match in re.findall('\[\[([^\]]+)\]\]', string):
+        if '|' in match:
+            yield match[:match.find('|')]
+        else:
+            yield match
 
 
 def get_pages(wiki_text, dirname, year):
@@ -66,8 +70,6 @@ for filename in os.listdir('tables'):
 
         redirects.extend(get_pages(song, 'song_pages', year))
         redirects.extend(get_pages(artists, 'artist_pages', year))
-
-with open('redirects.tsv', 'a') as the_file:
-    for old, new in redirects:
-        print("%s\t%s" % (old, new), file=the_file)
-        print("%s\t%s" % (old, new))
+        with open('redirects.tsv', 'a') as the_file:
+            for old, new in redirects:
+                print("%s\t%s" % (old, new), file=the_file)
